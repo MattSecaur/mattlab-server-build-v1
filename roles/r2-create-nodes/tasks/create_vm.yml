@@ -60,7 +60,7 @@
     --disk path={{ hostvars[item].vm_metadata.disk.path }}/{{ hostvars[item].vm_metadata.name }}.qcow2,device=disk,bus=virtio,format=qcow2 
     --disk path={{ hostvars[item].vm_metadata.disk.path }}/{{ hostvars[item].vm_metadata.name }}.iso,device=cdrom 
     --import --noautoconsole --vnc --hvm 
-    --network network:{{ vnet_prov.name }}
     --network bridge=br0,model=virtio 
+    --network bridge=br1,model=virtio
     --name {{ hostvars[item].vm_metadata.name }}
   when: hostvars[item].vm_metadata.name not in virt_vms.list_vms
