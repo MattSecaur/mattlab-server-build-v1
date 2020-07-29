@@ -25,7 +25,7 @@
   when: not underclImage_result.stat.exists
 
 - name: Resize hostvars[item] image (call virt-resize)
-  command: virt-resize --expand /dev/sda1 {{ image_path }}{{ image_rhel8_guest }} {{ hostvars[item].vm_metadata.disk.path }}/{{ hostvars[item].vm_metadata.name }}.qcow2
+  command: virt-resize --expand /dev/sda3 {{ image_path }}{{ image_rhel8_guest }} {{ hostvars[item].vm_metadata.disk.path }}/{{ hostvars[item].vm_metadata.name }}.qcow2
   when: not underclImage_result.stat.exists
 
 ########################################
