@@ -51,7 +51,7 @@ output:
   all: '| tee -a /var/log/cloud-init-output.log'
 
 runcmd:
-  [ dnf, install, -y, 'http://lt01sat01.matt.lab/pub/katello-ca-consumer-latest.noarch.rpm' ]
+  - [ dnf, install, -y, 'http://lt01sat01.matt.lab/pub/katello-ca-consumer-latest.noarch.rpm' ]
 
 bootcmd:
   - ifdown eth0
