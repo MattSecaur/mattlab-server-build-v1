@@ -31,3 +31,8 @@ libvirt_config_lines:
   - 'unix_sock_rw_perms = "0770"'
   - 'unix_sock_admin_perms = "0700"'
   - 'unix_sock_dir = "/var/run/libvirt"'
+
+vm_repos:
+  - rhel-8-for-x86_64-baseos-rpms
+  - rhel-8-for-x86_64-appstream-rpms
+  

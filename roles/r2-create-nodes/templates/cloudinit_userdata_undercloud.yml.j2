@@ -3,17 +3,6 @@
 package_upgrade: false
 users:
   - default
-  - name: stack
-    gecos: RedHat Openstack User
-    ssh-authorized-keys:
-      {% for serverkey in server_sshkeys %}
-      - {{ serverkey.key }}
-      
-      {% endfor %}
-
-    sudo:
-      - ALL=(root) NOPASSWD:ALL
-
   - name: root
     ssh-authorized-keys:
       {% for serverkey in server_sshkeys %}
@@ -27,27 +16,27 @@ ssh_pwauth: yes
 chpasswd:
     expire: false
     list: |
-        stack:{{ stack_user.passwd }}
         root:{{ stack_user.passwd }}
 
 write_files:
-  - path: /etc/sysconfig/network-scripts/ifcfg-eth0
-    content: |
-      DEVICE=eth0
-      TYPE=Ethernet
-      BOOTPROTO=none
-      ONBOOT=yes
-      PEERDNS=yes
-      NM_CONTROLLED=no
   - path: /etc/sysconfig/network-scripts/ifcfg-eth1
     content: |
       DEVICE=eth1
       TYPE=Ethernet
       BOOTPROTO=none
-      IPADDR={{ hostvars[item].vm_metadata.static_external_net.ip }}
-      NETMASK={{ hostvars[item].vm_metadata.static_external_net.ntmk }}
-      GATEWAY={{ hostvars[item].vm_metadata.static_external_net.gtw }}
-      DNS1={{ hostvars[item].vm_metadata.static_external_net.nameserver1 }}
+      ONBOOT=yes
+      PEERDNS=yes
+      NM_CONTROLLED=no
+  - path: /etc/sysconfig/network-scripts/ifcfg-eth0
+    content: |
+      DEVICE=eth0
+      TYPE=Ethernet
+      BOOTPROTO=none
+      IPADDR={{ vm_ip }}
+      NETMASK=255.255.255.0
+      GATEWAY=192.168.0.1
+      DNS1=192.168.0.34
+      DNS2=192.168.0.44
       ONBOOT=yes
       PEERDNS=yes
   - path: /etc/sysctl.conf
@@ -55,35 +44,23 @@ write_files:
       net.ipv4.ip_forward = 1
   - path: /etc/resolv.conf
     content: |
-      nameserver {{ hostvars[item].vm_metadata.static_external_net.nameserver1 }}
+      nameserver 192.168.0.34
+      nameserver 192.168.0.44
 
 output:
   all: '| tee -a /var/log/cloud-init-output.log'
 
-runcmd:
-  {% set tkeyremovequotes = stack_priv_key[1:-1] %}
-  {% set textkey = tkeyremovequotes.split('\\n') %}
-  {% for line in textkey %}
-  - [ sh, -c, 'echo "{{line}}" >> /home/stack/.ssh/id_rsa' ]
-  {% endfor %}
-  - [ sh, -c, 'echo "{{stack_pub_key}}" > /home/stack/.ssh/id_rsa.pub' ]
-  - [ chown, 'stack:stack', /home/stack/.ssh/id_rsa ]
-  - [ chown, 'stack:stack', /home/stack/.ssh/id_rsa.pub ]
-  - [ chmod, '0644', /home/stack/.ssh/id_rsa.pub ]
-  - [ chmod, '0600', /home/stack/.ssh/id_rsa ]
-  - [ sh, -c, 'echo "{{stack_pub_key}}" >> /home/stack/.ssh/authorized_keys' ]
-
 bootcmd:
-  - ifdown eth1
-  - ifup eth1
-  - echo "{{hostvars[item].vm_metadata.static_default_net.ip}} {{ hostvars[item].vm_metadata.hostname }}" >> /etc/hosts
+  - ifdown eth0
+  - ifup eth0
+  - echo "{{ vm_ip }} {{ vm.hostname }} {{ vm.name }}" >> /etc/hosts
 
 rh_subscription:
   activation-key: {{organization.activationkey}}
   org: {{organization.id}}
   auto-attach: True
   enable-repo:
-    {% for reposname in undercloud_repos %}
+    {% for reposname in vm_repos %}
     - {{ reposname }}
     {% endfor %}
 
