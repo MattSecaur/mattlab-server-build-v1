@@ -71,5 +71,7 @@ vm:
 
 ## Organization and regristration key
 organization:
-  id: 1979710
-  activationkey: tamlabosp1key
+  id: MattLab
+  activationkey: rhel8-key
+#  id: 1979710
+#  activationkey: tamlabosp1key
