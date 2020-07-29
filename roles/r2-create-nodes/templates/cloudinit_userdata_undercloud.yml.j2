@@ -57,6 +57,15 @@ bootcmd:
   - ifdown eth0
   - ifup eth0
   - echo "{{ vm_ip }} {{ vm.hostname }} {{ vm.name }}" >> /etc/hosts
+                             
+rh_subscription:
+  activation-key: {{organization.activationkey}}
+  org: {{organization.id}}
+  auto-attach: True
+  enable-repo:
+    {% for reposname in vm_repos %}
+    - {{ reposname }}
+    {% endfor %}
 
 cloud_init_modules:
   - migrator
@@ -67,15 +76,8 @@ cloud_init_modules:
   - set_hostname
   - update_hostname
   - update_etc_hosts
+  - runcmd
   - rsyslog
   - users-groups
   - ssh
-                                        
-rh_subscription:
-  activation-key: {{organization.activationkey}}
-  org: {{organization.id}}
-  auto-attach: True
-  enable-repo:
-    {% for reposname in vm_repos %}
-    - {{ reposname }}
-    {% endfor %}
+  - rh_subscription
